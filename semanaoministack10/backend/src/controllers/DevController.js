@@ -13,8 +13,6 @@ module.exports = {
     
     async store(request, response) {         //async é pq vai demorar
 
-
-        
             const { github_username, techs, latitude, longitude } = request.body;
 
             let dev = await Dev.findOne({ github_username });
@@ -47,4 +45,4 @@ module.exports = {
             return response.json(dev);
         
     }
-};
+};;
