@@ -3,8 +3,11 @@ import { StyleSheet, Image, View, Text, TextInput, TouchableOpacity } from 'reac
 import MapView, { Marker, Callout } from 'react-native-maps';
 import { requestPermissionsAsync, getCurrentPositionAsync}  from 'expo-location';
 import {MaterialIcons} from '@expo/vector-icons'; 
+
+import api from '../services/api';
  
 function Main( { navigation }) {
+    const [devs, setDevs] = useState([]);
     const [currentRegion, setCurrentRegion] = useState(null);
 
     useEffect(() => {
@@ -30,15 +33,42 @@ function Main( { navigation }) {
         loadInitialPosition();
     }, []);
 
+    async function loadDevs() {
+        const { latitude, longitude } = currentRegion;
+
+        const response = await api.get('/search', {
+            params: {
+                latitude,
+                longitude,
+                techs: 'Python',
+            } 
+        });
+    
+    setDevs(response.data);
+    
+    }
+
+    function handleRegionChanged() {
+        
+    }
+ 
     if (!currentRegion) {
         return null;
     }
 
     return (
         <>
-        <MapView initialRegion={currentRegion} style={styles.map}>
-            <Marker coordinate={{ latitude: -27.6048586, longitude: -48.5170158 }}>
-                <Image style={styles.avatar} source={{ uri: 'https://avatars2.githubusercontent.com/u/52687806?s=460&v=4' }} />
+        <MapView
+            onRegionChangeComplete={handleRegionChanged}
+            initialRegion={currentRegion}
+            style={styles.map}>
+
+            <Marker
+                coordinate={{ latitude: -27.6048586, longitude: -48.5170158 }}>
+            
+                <Image
+                    style={styles.avatar}
+                    source={{ uri: 'https://avatars2.githubusercontent.com/u/52687806?s=460&v=4' }} />
 
                 <Callout onPress={() => {
                     navigation.navigate('Profile', { github_username: 'gustavobborges' });
@@ -49,7 +79,6 @@ function Main( { navigation }) {
                         <Text style={styles.devTechs}>ReactJS, React Native, Node.js</Text>
                     </View>
                 </Callout>
-            
             </Marker>
         </MapView>
         <View style={styles.searchForm}>
@@ -136,7 +165,6 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
 
-    
 })
 
 export default Main;
