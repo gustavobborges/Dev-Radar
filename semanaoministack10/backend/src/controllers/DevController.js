@@ -1,6 +1,7 @@
 const axios = require('axios'); 
 const Dev = require('../models/Dev');
 const parseStringAsArray = require('../utils/parseStringAsArray');
+const {findConnections} = require('../webSocket');
 
 module.exports = {
     
@@ -19,13 +20,11 @@ module.exports = {
 
             if (!dev) {
                 const apiResponse = await axios.get(`https://api.github.com/users/${github_username}`);
-                // o await ira fazer aguardar a busca o perfil do git... 
-                  
+                         
                     const { name = login, avatar_url, bio } = apiResponse.data;
                 
                     const techsArray = parseStringAsArray(techs);
-                //o split dividirá o array sempre q tiver a virgula.... o tech é para inserir o trim, que remove espaços antes e dps de uma string
-                
+                     
                     const location = {
                         type: 'Point',
                         coordinates: [longitude, latitude],
@@ -39,9 +38,13 @@ module.exports = {
                         techs: techsArray,
                         location,
                     })
-            }
-            
-            
+
+                    const sendSocketMessageTo = findConnections(
+                        { latitude, longitude },
+                        techsArray,
+                    )
+                }
+                        
             return response.json(dev);
         
     }
